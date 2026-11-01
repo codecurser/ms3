@@ -82,12 +82,15 @@ public class DatabaseConfig {
             config.setPassword(password);
         }
 
-        config.setMaximumPoolSize(10);
-        config.setMinimumIdle(2);
-        config.setIdleTimeout(300000);
-        config.setConnectionTimeout(20000);
+        // Optimized pool settings for Neon serverless PgBouncer pooler
+        config.setMaximumPoolSize(5);
+        config.setMinimumIdle(1);
+        config.setIdleTimeout(60000); // 1 minute
+        config.setMaxLifetime(300000); // 5 minutes
+        config.setKeepaliveTime(30000); // 30 seconds keepalive probe
+        config.setConnectionTimeout(30000);
+        config.setConnectionTestQuery("SELECT 1");
 
         return new HikariDataSource(config);
     }
 }
-
