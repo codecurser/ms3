@@ -3,6 +3,12 @@ target/
 !**/src/main/**/target/
 !**/src/test/**/target/
 
+# Node
+node_modules/
+.npm
+.vite
+dist/
+
 ### STS ###
 .apt_generated
 .classpath
@@ -31,4 +37,3 @@ target/
 ### Environment & Logs ###
 .env
 *.log
-
