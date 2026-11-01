@@ -1,0 +1,34 @@
+server:
+  port: ${PORT:8083}
+
+spring:
+  application:
+    name: question-service
+
+  datasource:
+    url: ${SPRING_DATASOURCE_URL:${DB_URL:${DATABASE_URL:jdbc:postgresql://${DB_HOST:ep-wild-cherry-b5ctexgm-pooler.c-7.us-east-2.aws.neon.tech}:${DB_PORT:5432}/${DB_NAME:neondb}?sslmode=require&channel_binding=require}}}
+    username: ${DB_USERNAME:neondb_owner}
+    password: ${DB_PASSWORD:npg_pM6EYGjk2mXP}
+    driver-class-name: org.postgresql.Driver
+
+  jpa:
+    hibernate:
+      ddl-auto: validate
+    show-sql: false
+    properties:
+      hibernate:
+        format_sql: true
+
+  flyway:
+    enabled: true
+    baseline-on-migrate: true
+
+jwt:
+  secret: ${JWT_SECRET:404E635266556A586E3272357538782F413F4428472B4B6250645367566B5970}
+
+springdoc:
+  api-docs:
+    path: /v3/api-docs
+  swagger-ui:
+    path: /swagger-ui.html
+    operationsSorter: method

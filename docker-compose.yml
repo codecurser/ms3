@@ -1,0 +1,18 @@
+services:
+  question-service:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: question-service
+    ports:
+      - "8083:8083"
+    environment:
+      PORT: 8083
+      DATABASE_URL: postgresql://neondb_owner:npg_pM6EYGjk2mXP@ep-wild-cherry-b5ctexgm-pooler.c-7.us-east-2.aws.neon.tech/neondb?sslmode=require&channel_binding=require
+      DB_HOST: ep-wild-cherry-b5ctexgm-pooler.c-7.us-east-2.aws.neon.tech
+      DB_PORT: 5432
+      DB_NAME: neondb
+      DB_USERNAME: neondb_owner
+      DB_PASSWORD: npg_pM6EYGjk2mXP
+      JWT_SECRET: 404E635266556A586E3272357538782F413F4428472B4B6250645367566B5970
+    restart: unless-stopped
