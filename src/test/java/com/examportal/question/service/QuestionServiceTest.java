@@ -243,5 +243,46 @@ class QuestionServiceTest {
         assertEquals(1, key.getQuestions().get(0).getCorrectOptionIds().size());
         assertEquals(opt1Id, key.getQuestions().get(0).getCorrectOptionIds().get(0));
     }
+
+    @Test
+    @DisplayName("Should prevent creator from viewing questions for an exam created by another creator")
+    void testGetQuestionsUnauthorizedExamCreator() {
+        UUID otherCreatorId = UUID.randomUUID();
+        Question existing = Question.builder()
+                .id(UUID.randomUUID())
+                .examId(examId)
+                .creatorId(otherCreatorId)
+                .questionText("Question by Ainika")
+                .options(new ArrayList<>())
+                .build();
+
+        when(questionRepository.findByExamIdOrderByOrderIndexAscCreatedAtAsc(examId))
+                .thenReturn(List.of(existing));
+
+        assertThrows(UnauthorizedQuestionAccessException.class, () ->
+                questionService.getQuestionsForCreator(examId, creatorId));
+    }
+
+    @Test
+    @DisplayName("Should allow creator to view questions for their own exam")
+    void testGetQuestionsOwnExam() {
+        Question existing = Question.builder()
+                .id(UUID.randomUUID())
+                .examId(examId)
+                .creatorId(creatorId)
+                .questionText("Question by Abhishek")
+                .options(new ArrayList<>())
+                .build();
+
+        when(questionRepository.findByExamIdOrderByOrderIndexAscCreatedAtAsc(examId))
+                .thenReturn(List.of(existing));
+        when(questionRepository.findByExamIdWithOptions(examId))
+                .thenReturn(List.of(existing));
+
+        List<QuestionResponse> results = questionService.getQuestionsForCreator(examId, creatorId);
+        assertNotNull(results);
+        assertEquals(1, results.size());
+        assertEquals("Question by Abhishek", results.get(0).getQuestionText());
+    }
 }
 

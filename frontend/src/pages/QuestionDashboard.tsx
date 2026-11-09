@@ -19,7 +19,9 @@ import {
 
 export const QuestionDashboard: React.FC = () => {
   const navigate = useNavigate();
-  const [examId, setExamId] = useState<string>('e1e1e1e1-1111-1111-1111-111111111111');
+  const [examId, setExamId] = useState<string>(() => {
+    return localStorage.getItem('selected_exam_id') || '';
+  });
   const [availableExams, setAvailableExams] = useState<any[]>([]);
   const [questions, setQuestions] = useState<QuestionResponse[]>([]);
   const [loading, setLoading] = useState(false);
@@ -32,8 +34,17 @@ export const QuestionDashboard: React.FC = () => {
         const examsList = res.content || res.exams || res;
         if (Array.isArray(examsList) && examsList.length > 0) {
           setAvailableExams(examsList);
-          if (!examId || examId === 'e1e1e1e1-1111-1111-1111-111111111111') {
+          // If no exam is selected or the active examId doesn't belong to the logged-in creator,
+          // switch to the creator's first exam automatically.
+          const ownsCurrentExam = examsList.some((e: any) => e.id === examId);
+          if (!ownsCurrentExam) {
             setExamId(examsList[0].id);
+            localStorage.setItem('selected_exam_id', examsList[0].id);
+          }
+        } else {
+          setAvailableExams([]);
+          if (examId === 'e1e1e1e1-1111-1111-1111-111111111111') {
+            setExamId('');
           }
         }
       })
@@ -41,7 +52,10 @@ export const QuestionDashboard: React.FC = () => {
   }, []);
 
   const loadQuestions = async (idToLoad = examId) => {
-    if (!idToLoad.trim()) return;
+    if (!idToLoad || !idToLoad.trim()) {
+      setQuestions([]);
+      return;
+    }
     setLoading(true);
     setError(null);
     try {
@@ -56,8 +70,11 @@ export const QuestionDashboard: React.FC = () => {
   };
 
   useEffect(() => {
-    if (examId) {
+    if (examId && examId.trim()) {
+      localStorage.setItem('selected_exam_id', examId.trim());
       loadQuestions(examId);
+    } else {
+      setQuestions([]);
     }
   }, [examId]);
 
@@ -168,8 +185,25 @@ export const QuestionDashboard: React.FC = () => {
 
       {/* Error alert */}
       {error && (
-        <div className="glass-panel" style={{ padding: 16, borderColor: 'rgba(239, 68, 68, 0.4)', background: 'rgba(239, 68, 68, 0.1)', color: '#f87171' }}>
-          <strong>Error:</strong> {error}
+        <div className="glass-panel" style={{ padding: 20, borderColor: 'rgba(239, 68, 68, 0.45)', background: 'rgba(239, 68, 68, 0.12)', color: '#fca5a5' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 8 }}>
+            <XCircle size={20} color="#f87171" />
+            <strong style={{ fontSize: '1rem', color: '#f87171' }}>Exam Access Notice</strong>
+          </div>
+          <p style={{ margin: '0 0 12px 0', fontSize: '0.9rem', color: '#cbd5e1' }}>
+            {error}
+          </p>
+          {availableExams.length > 0 && (
+            <button 
+              className="btn btn-secondary btn-sm"
+              onClick={() => {
+                setExamId(availableExams[0].id);
+                setError(null);
+              }}
+            >
+              Switch to My Exam: {availableExams[0].title || availableExams[0].id}
+            </button>
+          )}
         </div>
       )}
 

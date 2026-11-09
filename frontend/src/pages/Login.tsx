@@ -22,6 +22,7 @@ export const Login: React.FC = () => {
         if (!manualToken.trim()) {
           throw new Error('Please enter a valid JWT token');
         }
+        localStorage.removeItem('selected_exam_id');
         setAuthToken(manualToken.trim());
         setStoredUserEmail('creator@examportal.com');
         navigate('/dashboard');
@@ -31,6 +32,7 @@ export const Login: React.FC = () => {
       const res = await api.login({ email, password });
       const token = res.accessToken || res.token;
       if (token) {
+        localStorage.removeItem('selected_exam_id');
         setAuthToken(token);
         setStoredUserEmail(email);
         navigate('/dashboard');

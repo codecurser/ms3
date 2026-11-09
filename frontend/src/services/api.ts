@@ -30,7 +30,11 @@ export const getAuthApiBase = () => {
 
 export const getAuthToken = () => localStorage.getItem('token');
 export const setAuthToken = (token: string) => localStorage.setItem('token', token);
-export const removeAuthToken = () => localStorage.removeItem('token');
+export const removeAuthToken = () => {
+  localStorage.removeItem('token');
+  localStorage.removeItem('user_email');
+  localStorage.removeItem('selected_exam_id');
+};
 
 export const getStoredUserEmail = () => localStorage.getItem('user_email') || 'creator@examportal.com';
 export const setStoredUserEmail = (email: string) => localStorage.setItem('user_email', email);
@@ -59,7 +63,10 @@ const handleResponse = async (res: Response) => {
       window.location.href = '/login';
     }
     const err = await res.json().catch(() => ({}));
-    throw new Error(err.message || (res.status === 403 ? 'Access forbidden (403)' : 'API request failed'));
+    if (res.status === 403) {
+      throw new Error(err.message || 'Access Denied (403): You do not have permission to view or manage questions for this exam.');
+    }
+    throw new Error(err.message || (res.status === 404 ? 'Resource not found (404)' : 'API request failed'));
   }
   return res.json();
 };
