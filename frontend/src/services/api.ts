@@ -9,7 +9,7 @@ import {
 export const getQuestionApiBase = () => {
   const custom = localStorage.getItem('question_api_base');
   if (custom && custom.trim()) return custom.trim().replace(/\/+$/, '');
-  return (import.meta.env.VITE_QUESTION_API_BASE || 'http://localhost:8083/api/v1').replace(/\/+$/, '');
+  return (import.meta.env.VITE_QUESTION_API_BASE || 'https://ms3-1.onrender.com/api/v1').replace(/\/+$/, '');
 };
 
 export const setQuestionApiBase = (url: string) => {
