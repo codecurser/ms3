@@ -247,17 +247,8 @@ class QuestionServiceTest {
     @Test
     @DisplayName("Should prevent creator from viewing questions for an exam created by another creator")
     void testGetQuestionsUnauthorizedExamCreator() {
-        UUID otherCreatorId = UUID.randomUUID();
-        Question existing = Question.builder()
-                .id(UUID.randomUUID())
-                .examId(examId)
-                .creatorId(otherCreatorId)
-                .questionText("Question by Ainika")
-                .options(new ArrayList<>())
-                .build();
-
-        when(questionRepository.findByExamIdOrderByOrderIndexAscCreatedAtAsc(examId))
-                .thenReturn(List.of(existing));
+        when(questionRepository.existsByExamIdAndCreatorIdNot(examId, creatorId))
+                .thenReturn(true);
 
         assertThrows(UnauthorizedQuestionAccessException.class, () ->
                 questionService.getQuestionsForCreator(examId, creatorId));
@@ -274,8 +265,8 @@ class QuestionServiceTest {
                 .options(new ArrayList<>())
                 .build();
 
-        when(questionRepository.findByExamIdOrderByOrderIndexAscCreatedAtAsc(examId))
-                .thenReturn(List.of(existing));
+        when(questionRepository.existsByExamIdAndCreatorIdNot(examId, creatorId))
+                .thenReturn(false);
         when(questionRepository.findByExamIdWithOptions(examId))
                 .thenReturn(List.of(existing));
 

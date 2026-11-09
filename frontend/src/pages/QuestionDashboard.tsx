@@ -38,8 +38,10 @@ export const QuestionDashboard: React.FC = () => {
           // switch to the creator's first exam automatically.
           const ownsCurrentExam = examsList.some((e: any) => e.id === examId);
           if (!ownsCurrentExam) {
-            setExamId(examsList[0].id);
-            localStorage.setItem('selected_exam_id', examsList[0].id);
+            const firstId = examsList[0].id;
+            setExamId(firstId);
+            localStorage.setItem('selected_exam_id', firstId);
+            loadQuestions(firstId);
           }
         } else {
           setAvailableExams([]);
@@ -197,8 +199,11 @@ export const QuestionDashboard: React.FC = () => {
             <button 
               className="btn btn-secondary btn-sm"
               onClick={() => {
-                setExamId(availableExams[0].id);
+                const targetId = availableExams[0].id;
+                setExamId(targetId);
+                localStorage.setItem('selected_exam_id', targetId);
                 setError(null);
+                loadQuestions(targetId);
               }}
             >
               Switch to My Exam: {availableExams[0].title || availableExams[0].id}

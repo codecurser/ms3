@@ -28,5 +28,7 @@ public interface QuestionRepository extends JpaRepository<Question, UUID> {
     void deleteByExamIdAndCreatorId(UUID examId, UUID creatorId);
 
     boolean existsByIdAndCreatorId(UUID id, UUID creatorId);
+
+    boolean existsByExamIdAndCreatorIdNot(UUID examId, UUID creatorId);
 }
 

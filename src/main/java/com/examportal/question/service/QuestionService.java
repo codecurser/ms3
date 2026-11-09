@@ -13,8 +13,6 @@ import com.examportal.question.exception.UnauthorizedQuestionAccessException;
 import com.examportal.question.repository.QuestionRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -27,9 +25,6 @@ import java.util.stream.Collectors;
 public class QuestionService {
 
     private final QuestionRepository questionRepository;
-
-    @Autowired(required = false)
-    private JdbcTemplate jdbcTemplate;
 
     @Transactional
     public QuestionResponse createQuestion(UUID examId, CreateQuestionRequest request, UUID creatorId) {
@@ -204,39 +199,10 @@ public class QuestionService {
     }
 
     private void verifyExamAccess(UUID examId, UUID creatorId) {
-        // 1. Direct cross-service check against shared 'exams' table if available in database
-        if (jdbcTemplate != null) {
-            try {
-                List<UUID> owners = jdbcTemplate.query(
-                        "SELECT creator_id FROM exams WHERE id = ?",
-                        (rs, rowNum) -> (UUID) rs.getObject("creator_id"),
-                        examId
-                );
-                if (!owners.isEmpty()) {
-                    if (!creatorId.equals(owners.get(0))) {
-                        log.warn("Creator {} attempted unauthorized access to exam {} owned by creator {}",
-                                creatorId, examId, owners.get(0));
-                        throw new UnauthorizedQuestionAccessException("You do not have permission to view or manage questions for this exam.");
-                    }
-                    return;
-                }
-            } catch (UnauthorizedQuestionAccessException uae) {
-                throw uae;
-            } catch (Exception e) {
-                log.debug("Direct exam table check skipped: {}", e.getMessage());
-            }
-        }
-
-        // 2. Question-level ownership validation for existing questions
-        List<Question> existingQuestions = questionRepository.findByExamIdOrderByOrderIndexAscCreatedAtAsc(examId);
-        if (!existingQuestions.isEmpty()) {
-            boolean hasUnauthorized = existingQuestions.stream()
-                    .anyMatch(q -> !creatorId.equals(q.getCreatorId()));
-            if (hasUnauthorized) {
-                log.warn("Creator {} attempted unauthorized access to questions for exam {} created by another user",
-                        creatorId, examId);
-                throw new UnauthorizedQuestionAccessException("You do not have permission to view or manage questions for this exam.");
-            }
+        if (questionRepository.existsByExamIdAndCreatorIdNot(examId, creatorId)) {
+            log.warn("Creator {} attempted unauthorized access to questions for exam {} created by another user",
+                    creatorId, examId);
+            throw new UnauthorizedQuestionAccessException("You do not have permission to view or manage questions for this exam.");
         }
     }
 
