@@ -10,7 +10,7 @@ Question Management Microservice (`question-service` / MS3) for the Online Exami
 |---|---|---|---|
 | **MS1 (auth-service)** | `8081` | Authentication, User Management & JWT Issuance | https://microservice-based-examination-1.onrender.com |
 | **MS2 (exam-service)** | `8082` | Exam Management, Titles, Durations, Share Codes | https://ms2-w51n.onrender.com |
-| **MS3 (question-service)** | `8083` | Question & Choice Management, Public & Answer-Key APIs | https://ms3-1.onrender.com |
+| **MS3 (question-service)** | `8083` | Question & Choice Management, Public & Answer-Key APIs | https://ms3-2.onrender.com |
 | **MS4 (evaluation-service)** | `8084` | Submission Grading & Result Computation | In Progress |
 
 ---
